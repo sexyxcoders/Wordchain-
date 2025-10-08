@@ -49,14 +49,14 @@ async def start_cmd(client, message):
                 caption=(
                     "⚠️ <b>ʏᴏᴜ ᴍᴜꜱᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏꜰꜰɪᴄɪᴀʟ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.</b>\n\n"
                     f"📢 <a href='{config.MUST_JOIN[0]}'>@TechNodeCoders</a>\n\n"
-                    "ᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’ ʙᴇʟᴏᴡ."
+                    "ᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘❍ ᴊᴏɪɴᴇᴅ’ ʙᴇʟᴏᴡ."
                 ),
                 reply_markup=buttons,
                 parse_mode=ParseMode.HTML
             )
         except Exception:
             await message.reply_text(
-                "⚠️ ʏᴏᴜ ᴍᴜꜱᴛ ᴊᴏɪɴ @TechNodeCoders ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.\nᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’.",
+                "⚠️ ʏᴏᴜ ᴍᴜꜱᴛ ᴊᴏɪɴ @TechNodeCoders,@Sxnpeᴛᴏ , ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.\nᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’.",
                 reply_markup=buttons,
                 parse_mode=ParseMode.HTML
             )
@@ -64,7 +64,7 @@ async def start_cmd(client, message):
 
     # Normal start message
     buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("👑 ᴏᴡɴᴇʀ", url=f"tg://user?id={config.OWNER_ID}")],
+        [InlineKeyboardButton(" ᴏᴡɴᴇʀ", url=f"tg://user?id={config.OWNER_ID}")],
         [InlineKeyboardButton("📢 ᴄʜᴀɴɴᴇʟ", url=config.SUPPORT_CHANNEL),
          InlineKeyboardButton("💬 ꜱᴜᴘᴘᴏʀᴛ ᴄʜᴀᴛ", url=config.SUPPORT_CHAT)]
     ])

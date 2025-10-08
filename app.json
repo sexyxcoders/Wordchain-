@@ -55,8 +55,7 @@
     },
     "START_IMAGE": {
       "description": "Start banner image (Telegraph or hosted image URL)",
-      "value": "assets
-/start_banner.jpg"
+      "value": "assets/start_banner.jpg"
     },
     "WORDCHAIN_GROUP": {
       "description": "The group ID where the WordChain game is played",

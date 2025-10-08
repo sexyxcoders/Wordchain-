@@ -18,3 +18,6 @@ SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/TNCmeetup")
 SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "https://t.me/TechNodeCoders")
 START_IMAGE = os.getenv("START_IMAGE", "assets/start_banner.jpg")
 WORDCHAIN_GROUP = int(os.getenv("WORDCHAIN_GROUP", "-1001234567890"))
+
+MUST_JOIN = ["https://t.me/TechNodeCoders"]
+MUST_JOIN_IMAGE = os.getenv("MUST_JOIN_IMAGE", "assets/must_join.jpg")

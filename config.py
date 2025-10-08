@@ -13,7 +13,7 @@ DB_PATH = os.getenv("DB_PATH", "sessions.db")
 
 WORDS_PATH = os.getenv("WORDS_PATH", "words.txt")
 OWNER_ID = int(os.getenv("OWNER_ID", "8157752411"))
-LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", "-1003111446920"))
+LOG_GROUP_ID = int(os.getenv("LOG_GROUP_ID", "@Datauserbotx"))
 SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/TNCmeetup")
 SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "https://t.me/TechNodeCoders")
 START_IMAGE = os.getenv("START_IMAGE", "assets/start_banner.jpg")

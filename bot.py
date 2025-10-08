@@ -1,8 +1,11 @@
-# bot.py — TNC WordChain Controller Bot (Final Stable Version)
+# ─────────────────────────────────────────────
+# 🧠 TNC WordChain Controller Bot
+# ─────────────────────────────────────────────
 import asyncio
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.enums import ParseMode
+from pyrogram.errors import UserNotParticipant
 import config
 from db_mongo import MongoDBSessionManager
 from userbots.wordchain_player import start_userbot
@@ -21,12 +24,23 @@ db = MongoDBSessionManager()
 
 
 # ────────────────────────────────
-# 🧩 Must-Join Channels
+# 🔒 Must-Join Verification
 # ────────────────────────────────
-MUST_JOIN_CHANNELS = [
-    "https://t.me/Sxnpe",
-    "https://t.me/TechNodeCoders"
-]
+async def check_membership(client, user_id):
+    """Ensure the user joined all required channels."""
+    required_channels = ["Sxnpe", "TechNodeCoders"]
+    for username in required_channels:
+        try:
+            member = await client.get_chat_member(username, user_id)
+            if member.status in ("left", "kicked"):
+                return False
+        except UserNotParticipant:
+            return False
+        except Exception as e:
+            print(f"⚠️ Membership check failed for {username}: {e}")
+            return False
+    return True
+
 
 # ────────────────────────────────
 # 🏁 Start Command
@@ -35,37 +49,32 @@ MUST_JOIN_CHANNELS = [
 async def start_cmd(client, message):
     user_id = message.from_user.id
 
-    # Show join verification panel
-    buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("📢 ᴊᴏɪɴ @Sxnpe", url=MUST_JOIN_CHANNELS[0])],
-        [InlineKeyboardButton("📢 ᴊᴏɪɴ @TechNodeCoders", url=MUST_JOIN_CHANNELS[1])],
-        [InlineKeyboardButton("✅ ɪ ᴊᴏɪɴᴇᴅ", callback_data="joined_check")]
-    ])
+    if not await check_membership(client, user_id):
+        buttons = InlineKeyboardMarkup([
+            [InlineKeyboardButton("📢 ᴊᴏɪɴ @Sxnpe", url="https://t.me/Sxnpe")],
+            [InlineKeyboardButton("📢 ᴊᴏɪɴ @TechNodeCoders", url="https://t.me/TechNodeCoders")],
+            [InlineKeyboardButton("✅ ɪ ᴊᴏɪɴᴇᴅ", callback_data="joined_check")]
+        ])
+        try:
+            await message.reply_photo(
+                photo=config.MUST_JOIN_IMAGE,
+                caption=(
+                    "⚠️ <b>ʏᴏᴜ ᴍᴜꜱᴛ ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.</b>\n\n"
+                    "📢 @Sxnpe\n📢 @TechNodeCoders\n\n"
+                    "ᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’ ʙᴇʟᴏᴡ."
+                ),
+                reply_markup=buttons,
+                parse_mode=ParseMode.HTML
+            )
+        except Exception:
+            await message.reply_text(
+                "⚠️ ᴊᴏɪɴ @Sxnpe & @TechNodeCoders ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.\nᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’.",
+                reply_markup=buttons,
+                parse_mode=ParseMode.HTML
+            )
+        return
 
-    try:
-        await message.reply_photo(
-            photo=config.MUST_JOIN_IMAGE,
-            caption=(
-                "⚠️ <b>ʏᴏᴜ ᴍᴜꜱᴛ ᴊᴏɪɴ ᴏᴜʀ ᴏꜰꜰɪᴄɪᴀʟ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.</b>\n\n"
-                "📢 @Sxnpe\n📢 @TechNodeCoders\n\n"
-                "ᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ ʙᴏᴛʜ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’ ʙᴇʟᴏᴡ."
-            ),
-            reply_markup=buttons,
-            parse_mode=ParseMode.HTML
-        )
-    except Exception:
-        await message.reply_text(
-            "⚠️ ᴘʟᴇᴀꜱᴇ ᴊᴏɪɴ @Sxnpe & @TechNodeCoders ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.",
-            reply_markup=buttons,
-            parse_mode=ParseMode.HTML
-        )
-
-
-# ────────────────────────────────
-# 🔁 “I Joined” Button
-# ────────────────────────────────
-@app.on_callback_query(filters.regex("joined_check"))
-async def joined_check(client, callback_query):
+    # Main menu
     buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("👑 ᴏᴡɴᴇʀ", url=f"tg://user?id={config.OWNER_ID}")],
         [InlineKeyboardButton("📢 ᴄʜᴀɴɴᴇʟ", url=config.SUPPORT_CHANNEL),
@@ -76,65 +85,75 @@ async def joined_check(client, callback_query):
         "ꜱᴇɴᴅ <code>/connect STRING</code> ᴛᴏ ʀᴇɢɪꜱᴛᴇʀ ʏᴏᴜʀ ᴛᴇʟᴇᴛʜᴏɴ ꜱᴛʀɪɴɢꜱᴇꜱꜱɪᴏɴ.\n"
         "ᴜꜱᴇ <code>/disconnect</code> ᴛᴏ ꜱᴛᴏᴘ ɪᴛ."
     )
-
     try:
-        await callback_query.message.edit_caption(caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
+        await message.reply_photo(photo=config.START_IMAGE, caption=caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
     except Exception:
-        await callback_query.message.edit_text(caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
+        await message.reply_text(caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
 
 
 # ────────────────────────────────
-# 🔗 Connect / Disconnect
+# 🔁 "I Joined" Button
+# ────────────────────────────────
+@app.on_callback_query(filters.regex("joined_check"))
+async def joined_check(client, callback_query):
+    user_id = callback_query.from_user.id
+    if await check_membership(client, user_id):
+        await callback_query.message.edit_caption("✅ ʏᴏᴜ ʜᴀᴠᴇ ᴊᴏɪɴᴇᴅ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ! ɴᴏᴡ ʏᴏᴜ ᴄᴀɴ ᴜꜱᴇ ᴛʜᴇ ʙᴏᴛ.")
+    else:
+        await callback_query.answer("❌ ᴘʟᴇᴀꜱᴇ ᴊᴏɪɴ @Sxnpe & @TechNodeCoders ꜰɪʀꜱᴛ.", show_alert=True)
+
+
+# ────────────────────────────────
+# 🔗 Connect Userbot
 # ────────────────────────────────
 @app.on_message(filters.command("connect") & filters.private)
 async def connect_cmd(client, message):
+    if not await check_membership(client, message.from_user.id):
+        await start_cmd(client, message)
+        return
+
     args = message.text.split(maxsplit=1)
     if len(args) < 2:
-        await message.reply_text(
-            "⚠️ ᴘʟᴇᴀꜱᴇ ꜱᴇɴᴅ ʏᴏᴜʀ ᴛᴇʟᴇᴛʜᴏɴ ꜱᴛʀɪɴɢꜱᴇꜱꜱɪᴏɴ ᴀꜰᴛᴇʀ /connect.\n\nExample:\n/connect STRING_HERE",
-            parse_mode=ParseMode.HTML
-        )
+        await message.reply_text("⚠️ ꜱᴇɴᴅ ʏᴏᴜʀ ᴛᴇʟᴇᴛʜᴏɴ ꜱᴛʀɪɴɢꜱᴇꜱꜱɪᴏɴ ᴀꜰᴛᴇʀ /connect.", parse_mode=ParseMode.HTML)
         return
 
     session_string = args[1].strip()
     user = message.from_user
-    user_id = user.id
 
-    db.save_session(user_id, session_string)
+    await db.save_session(user.id, session_string)
     await message.reply_text("✅ ꜱᴇꜱꜱɪᴏɴ ꜱᴀᴠᴇᴅ! ꜱᴛᴀʀᴛɪɴɢ ʏᴏᴜʀ ᴜꜱᴇʀʙᴏᴛ...", parse_mode=ParseMode.HTML)
 
     try:
-        await client.send_message(
-            config.LOG_GROUP_ID,
-            f"🧾 <b>ɴᴇᴡ ᴄᴏɴɴᴇᴄᴛɪᴏɴ</b>\n👤 {user.first_name}\n🆔 <code>{user_id}</code>",
-            parse_mode=ParseMode.HTML
-        )
+        await client.send_message(config.LOG_GROUP_ID, f"🧾 <b>ɴᴇᴡ ᴄᴏɴɴᴇᴄᴛɪᴏɴ</b>\n👤 {user.mention}\n🆔 <code>{user.id}</code>", parse_mode=ParseMode.HTML)
     except Exception as e:
-        print(f"⚠️ Log error: {e}")
+        print("⚠️ Log error:", e)
 
     try:
-        await start_userbot(session_string, user_id)
-        await message.reply_text("🤖 ʏᴏᴜʀ ᴜꜱᴇʀʙᴏᴛ ɪꜱ ɴᴏᴡ ᴀᴄᴛɪᴠᴇ!", parse_mode=ParseMode.HTML)
+        # FIXED — no await on start_userbot
+        start_userbot(session_string, user.id)
+        await message.reply_text("🤖 ʏᴏᴜʀ ᴜꜱᴇʀʙᴏᴛ ɪꜱ ɴᴏᴡ ᴀᴄᴛɪᴠᴇ ᴀɴᴅ ʀᴇᴀᴅʏ!", parse_mode=ParseMode.HTML)
     except Exception as e:
         await message.reply_text(f"❌ ꜰᴀɪʟᴇᴅ ᴛᴏ ꜱᴛᴀʀᴛ ᴜꜱᴇʀʙᴏᴛ.\nError: {e}", parse_mode=ParseMode.HTML)
 
 
+# ────────────────────────────────
+# 🛑 Disconnect
+# ────────────────────────────────
 @app.on_message(filters.command("disconnect"))
 async def disconnect_cmd(client, message):
     user = message.from_user
     args = message.text.split()
-
     if user.id == config.OWNER_ID and len(args) > 1:
         target = int(args[1])
-        db.delete_session(target)
-        await message.reply_text(f"✅ ᴅɪꜱᴄᴏɴɴᴇᴄᴛᴇᴅ <code>{target}</code>", parse_mode=ParseMode.HTML)
+        await db.delete_session(target)
+        await message.reply_text(f"✅ ᴜꜱᴇʀ <code>{target}</code> ᴅɪꜱᴄᴏɴɴᴇᴄᴛᴇᴅ.", parse_mode=ParseMode.HTML)
         return
 
-    if not db.get_session(user.id):
+    if not await db.get_session(user.id):
         await message.reply_text("⚠️ ɴᴏ ᴀᴄᴛɪᴠᴇ ꜱᴇꜱꜱɪᴏɴ ꜰᴏᴜɴᴅ.", parse_mode=ParseMode.HTML)
         return
 
-    db.delete_session(user.id)
+    await db.delete_session(user.id)
     await message.reply_text("🛑 ʏᴏᴜʀ ᴜꜱᴇʀʙᴏᴛ ʜᴀꜱ ʙᴇᴇɴ ᴛᴇʀᴍɪɴᴀᴛᴇᴅ.", parse_mode=ParseMode.HTML)
 
 
@@ -143,26 +162,25 @@ async def disconnect_cmd(client, message):
 # ────────────────────────────────
 @app.on_message(filters.command("listusers") & filters.user(config.OWNER_ID))
 async def listusers_cmd(client, message):
-    users = db.list_sessions()
+    users = await db.list_sessions()
     if not users:
         await message.reply_text("📭 ɴᴏ ᴜꜱᴇʀꜱ ᴄᴏɴɴᴇᴄᴛᴇᴅ.", parse_mode=ParseMode.HTML)
         return
-
-    msg = ["👥 <b>ᴄᴏɴɴᴇᴄᴛᴇᴅ ᴜꜱᴇʀꜱ:</b>\n"]
+    lines = ["👥 <b>ᴄᴏɴɴᴇᴄᴛᴇᴅ ᴜꜱᴇʀꜱ:</b>\n"]
     for i, uid in enumerate(users, start=1):
         try:
             u = await client.get_users(uid)
-            msg.append(f"{i}. {u.first_name or 'Unknown'} — <code>{uid}</code>")
+            lines.append(f"{i}. {u.first_name or 'Unknown'} — <code>{uid}</code>")
         except Exception:
-            msg.append(f"{i}. ❓ Unknown — <code>{uid}</code>")
-    await message.reply_text("\n".join(msg), parse_mode=ParseMode.HTML)
+            lines.append(f"{i}. ❓ Unknown — <code>{uid}</code>")
+    await message.reply_text("\n".join(lines), parse_mode=ParseMode.HTML)
 
 
 @app.on_message(filters.command("stats") & filters.user(config.OWNER_ID))
 async def stats_cmd(client, message):
-    total, new_today, recon = db.stats()
+    total, new_today, recon = await db.stats()
     await message.reply_text(
-        f"📊 ᴛᴏᴛᴀʟ: {total}\n🆕 ᴛᴏᴅᴀʏ ɴᴇᴡ: {new_today}\n🔁 ʀᴇᴄᴏɴɴᴇᴄᴛᴇᴅ: {recon}",
+        f"📊 ᴛᴏᴛᴀʟ: {total}\n🆕 ɴᴇᴡ ᴛᴏᴅᴀʏ: {new_today}\n🔁 ʀᴇᴄᴏɴɴᴇᴄᴛᴇᴅ: {recon}",
         parse_mode=ParseMode.HTML
     )
 
@@ -172,8 +190,7 @@ async def broadcast_cmd(client, message):
     if not message.reply_to_message:
         await message.reply_text("📢 ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇꜱꜱᴀɢᴇ ᴛᴏ ʙʀᴏᴀᴅᴄᴀꜱᴛ.", parse_mode=ParseMode.HTML)
         return
-
-    users = db.list_sessions()
+    users = await db.list_sessions()
     sent = failed = 0
     for uid in users:
         try:
@@ -185,7 +202,7 @@ async def broadcast_cmd(client, message):
 
 
 # ────────────────────────────────
-# 🟢 Run the Bot
+# 🟢 Run Bot
 # ────────────────────────────────
 def run():
     print("🚀 ᴛɴᴄ ᴄᴏɴᴛʀᴏʟʟᴇʀ ʙᴏᴛ ᴄᴏɴɴᴇᴄᴛᴇᴅ!")

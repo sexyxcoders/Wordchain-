@@ -20,4 +20,4 @@ START_IMAGE = os.getenv("START_IMAGE", "assets/start_banner.jpg")
 WORDCHAIN_GROUP = int(os.getenv("WORDCHAIN_GROUP", "-1001234567890"))
 
 MUST_JOIN = ["https://t.me/TechNodeCoders"]
-MUST_JOIN_IMAGE = os.getenv("MUST_JOIN_IMAGE", "assets/must_join.jpg")
+MUST_JOIN_IMAGE = os.getenv("MUST_JOIN_IMAGE", "https://files.catbox.moe/sdlf66.jpg")

@@ -1,71 +1,62 @@
 {
   "name": "TNC-WordChain Bot",
-  "description": "🤖 A smart Telegram WordChain Bot powered by Pyrogram & Telethon that lets users connect their own userbots to play automatically.",
+  "description": "🤖 Telethon-based WordChain auto-player with Pyrogram Controller by TechNodeCoders.",
   "repository": "https://github.com/sexyxcoders/Wordchain-",
-  "logo": "https://telegra.ph/file/3f91e1c2a8e8972b2899f.jpg",
-  "keywords": [
-    "telegram",
-    "bot",
-    "telethon",
-    "pyrogram",
-    "wordchain",
-    "mongodb",
-    "heroku"
-  ],
+  "logo": "https://telegra.ph/file/9f25a87c46fa2e3e9e3b2.jpg",
+  "keywords": ["telegram", "pyrogram", "telethon", "wordchain", "bot"],
   "env": {
     "BOT_TOKEN": {
-      "description": "Your Telegram bot token from @BotFather",
+      "description": "Your Telegram Bot Token from @BotFather",
       "required": true
     },
     "API_ID": {
-      "description": "Your Telegram API ID from my.telegram.org",
+      "description": "Your Telegram API ID from https://my.telegram.org",
       "required": true
     },
     "API_HASH": {
-      "description": "Your Telegram API Hash from my.telegram.org",
-      "required": true
-    },
-    "OWNER_ID": {
-      "description": "Your Telegram user ID (bot owner)",
-      "required": true
-    },
-    "LOG_GROUP_ID": {
-      "description": "Private group/channel ID for logging bot events",
+      "description": "Your Telegram API HASH from https://my.telegram.org",
       "required": true
     },
     "MONGO_URI": {
-      "description": "Your MongoDB URI (from MongoDB Atlas or local)",
+      "description": "Your MongoDB URI (MongoDB Atlas recommended)",
       "required": true
     },
     "DB_NAME": {
-      "description": "MongoDB database name",
-      "value": "TNCWordchain"
+      "description": "Name of your MongoDB database",
+      "value": "TNCWordchainDB",
+      "required": true
     },
-    "WORDS_PATH": {
-      "description": "Path to your words.txt file",
-      "value": "words.txt"
+    "OWNER_ID": {
+      "description": "Telegram User ID of the Bot Owner",
+      "required": true
     },
-    "SUPPORT_CHAT": {
-      "description": "Telegram support chat link",
-      "value": "https://t.me/TNCmeetup"
+    "LOG_GROUP_ID": {
+      "description": "Telegram group/channel ID where connection logs will be sent",
+      "required": true
     },
     "SUPPORT_CHANNEL": {
-      "description": "Telegram support channel link",
+      "description": "Your Support Channel link",
       "value": "https://t.me/TechNodeCoders"
     },
+    "SUPPORT_CHAT": {
+      "description": "Your Support Chat link",
+      "value": "https://t.me/TNCmeetup"
+    },
     "START_IMAGE": {
-      "description": "Start banner image (Telegraph or hosted image URL)",
+      "description": "Start command banner image URL or file path",
       "value": "assets/start_banner.jpg"
     },
+    "MUST_JOIN_IMAGE": {
+      "description": "Image shown for Must Join prompt",
+      "value": "https://files.catbox.moe/sdlf66.jpg"
+    },
     "WORDCHAIN_GROUP": {
-      "description": "The group ID where the WordChain game is played",
-      "required": true
+      "description": "Group ID where WordChain game runs (if needed)",
+      "value": "-1003111446920"
     }
   },
   "buildpacks": [
-    {
-      "url": "heroku/python"
-    }
+    { "url": "heroku/python" }
   ],
   "formation": {
     "worker": {
@@ -73,13 +64,9 @@
       "size": "Standard-1X"
     }
   },
-  "addons": [
-    {
-      "plan": "heroku-postgresql"
-    }
-  ],
+  "addons": [],
   "scripts": {
-    "postdeploy": "echo '✅ TNC-WordChain Bot deployed successfully!'"
+    "postdeploy": "echo 'TNC-WordChain deployed successfully!'"
   },
-  "stack": "heroku-22"
+  "success_url": "https://t.me/TechNodeCoders"
 }

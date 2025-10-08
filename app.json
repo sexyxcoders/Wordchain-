@@ -55,7 +55,8 @@
     },
     "START_IMAGE": {
       "description": "Start banner image (Telegraph or hosted image URL)",
-      "value": "https://telegra.ph/file/3f91e1c2a8e8972b2899f.jpg"
+      "value": "assets
+/start_banner.jpg"
     },
     "WORDCHAIN_GROUP": {
       "description": "The group ID where the WordChain game is played",
@@ -70,7 +71,7 @@
   "formation": {
     "worker": {
       "quantity": 1,
-      "size": "free"
+      "size": "Standard-X1"
     }
   },
   "addons": [

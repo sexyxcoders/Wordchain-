@@ -40,10 +40,10 @@ SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "https://t.me/TechNodeCoders")
 # ─────────────────────────────
 # 🧾 Logs & Media
 # ─────────────────────────────
-LOG_GROUP_ID = os.getenv("LOG_GROUP_ID", "-1003111446920")
+LOG_GROUP_ID = os.getenv("LOG_GROUP_ID", "Datauserbotx")
 # Handle both @username or numeric ID
 try:
-    if LOG_GROUP_ID.lstrip("-").isdigit():
+    if LOG_GROUP_ID.lstrip("@").isdigit():
         LOG_GROUP_ID = int(LOG_GROUP_ID)
 except Exception:
     pass

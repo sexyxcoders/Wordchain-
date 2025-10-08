@@ -1,0 +1,13 @@
+{
+  "name": "tnc-wordchain-bot",
+  "description": "TNC WordChain userbot controller (Pyrogram)",
+  "repository": "",
+  "env": {
+    "BOT_TOKEN": {"description": "Your bot token"},
+    "API_ID": {"description":"Your API ID"},
+    "API_HASH": {"description":"Your API HASH"},
+    "MONGO_URI": {"description":"MongoDB connection string"},
+    "DB_NAME": {"description":"Mongo database name"},
+    "LOG_GROUP_ID": {"description":"Log group chat id"}
+  }
+}

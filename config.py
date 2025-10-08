@@ -19,5 +19,5 @@ SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "https://t.me/TechNodeCoders")
 START_IMAGE = os.getenv("START_IMAGE", "assets/start_banner.jpg")
 WORDCHAIN_GROUP = int(os.getenv("WORDCHAIN_GROUP", "-1001234567890"))
 
-MUST_JOIN = ["https://t.me/TechNodeCoders"]
+MUST_JOIN = ["https://t.me/TechNodeCoders", "https://t.me/Sxnpe"]
 MUST_JOIN_IMAGE = os.getenv("MUST_JOIN_IMAGE", "https://files.catbox.moe/sdlf66.jpg")

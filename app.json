@@ -70,7 +70,7 @@
   "formation": {
     "worker": {
       "quantity": 1,
-      "size": "Standard-X1"
+      "size": "Standard-1X"
     }
   },
   "addons": [

@@ -1,7 +1,7 @@
 {
   "name": "TNC-WordChain Bot",
   "description": "🤖 A smart Telegram WordChain Bot powered by Pyrogram & Telethon that lets users connect their own userbots to play automatically.",
-  "repository": "https://github.com/TechNodeCoders/TNC-WordChain",
+  "repository": "https://github.com/sexyxcoders/Wordchain-",
   "logo": "https://telegra.ph/file/3f91e1c2a8e8972b2899f.jpg",
   "keywords": [
     "telegram",

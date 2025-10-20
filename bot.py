@@ -26,7 +26,7 @@ db = MongoDBSessionManager()
 # ────────────────────────────────
 # 🔒 Must-Join Verification
 # ────────────────────────────────
-async def check_membership(client, user_id):
+async def check_membership(client, user_id: int):
     """Ensure the user joined all required channels."""
     required_channels = ["Sxnpe", "TechNodeCoders"]
     for username in required_channels:
@@ -55,23 +55,24 @@ async def start_cmd(client, message):
             [InlineKeyboardButton("📢 ᴊᴏɪɴ @TechNodeCoders", url="https://t.me/TechNodeCoders")],
             [InlineKeyboardButton("✅ ɪ ᴊᴏɪɴᴇᴅ", callback_data="joined_check")]
         ])
+        caption = (
+            "⚠️ <b>ʏᴏᴜ ᴍᴜꜱᴛ ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.</b>\n\n"
+            "📢 @Sxnpe\n📢 @TechNodeCoders\n\n"
+            "ᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’ ʙᴇʟᴏᴡ."
+        )
         try:
-            await message.reply_photo(
-                photo=config.MUST_JOIN_IMAGE,
-                caption=(
-                    "⚠️ <b>ʏᴏᴜ ᴍᴜꜱᴛ ᴊᴏɪɴ ʙᴏᴛʜ ᴄʜᴀɴɴᴇʟꜱ ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.</b>\n\n"
-                    "📢 @Sxnpe\n📢 @TechNodeCoders\n\n"
-                    "ᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’ ʙᴇʟᴏᴡ."
-                ),
-                reply_markup=buttons,
-                parse_mode=ParseMode.HTML
-            )
-        except Exception:
-            await message.reply_text(
-                "⚠️ ᴊᴏɪɴ @Sxnpe & @TechNodeCoders ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ.\nᴀꜰᴛᴇʀ ᴊᴏɪɴɪɴɢ, ᴛᴀᴘ ‘ɪ ᴊᴏɪɴᴇᴅ’.",
-                reply_markup=buttons,
-                parse_mode=ParseMode.HTML
-            )
+            if getattr(config, "MUST_JOIN_IMAGE", None):
+                await message.reply_photo(
+                    photo=config.MUST_JOIN_IMAGE,
+                    caption=caption,
+                    reply_markup=buttons,
+                    parse_mode=ParseMode.HTML
+                )
+            else:
+                await message.reply_text(caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
+        except Exception as e:
+            print("⚠️ Failed to send must-join image, sending text instead.", e)
+            await message.reply_text(caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
         return
 
     # Main menu
@@ -86,8 +87,12 @@ async def start_cmd(client, message):
         "ᴜꜱᴇ <code>/disconnect</code> ᴛᴏ ꜱᴛᴏᴘ ɪᴛ."
     )
     try:
-        await message.reply_photo(photo=config.START_IMAGE, caption=caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
-    except Exception:
+        if getattr(config, "START_IMAGE", None):
+            await message.reply_photo(photo=config.START_IMAGE, caption=caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
+        else:
+            await message.reply_text(caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
+    except Exception as e:
+        print("⚠️ Failed to send start image, sending text instead.", e)
         await message.reply_text(caption, reply_markup=buttons, parse_mode=ParseMode.HTML)
 
 
@@ -114,22 +119,28 @@ async def connect_cmd(client, message):
 
     args = message.text.split(maxsplit=1)
     if len(args) < 2:
-        await message.reply_text("⚠️ ꜱᴇɴᴅ ʏᴏᴜʀ ᴛᴇʟᴇᴛʜᴏɴ ꜱᴛʀɪɴɢꜱᴇꜱꜱɪᴏɴ ᴀꜰᴛᴇʀ /connect.", parse_mode=ParseMode.HTML)
+        await message.reply_text(
+            "⚠️ ꜱᴇɴᴅ ʏᴏᴜʀ ᴛᴇʟᴇᴛʜᴏɴ ꜱᴛʀɪɴɢꜱᴇꜱꜱɪᴏɴ ᴀꜰᴛᴇʀ /connect.",
+            parse_mode=ParseMode.HTML
+        )
         return
 
     session_string = args[1].strip()
     user = message.from_user
 
     await db.save_session(user.id, session_string)
-    await message.reply_text("✅ ꜱᴇꜱꜱɪᴏɴ ꜱᴀᴠᴇᴅ! ꜱᴛᴀʀᴛɪɴɢ ʏᴏᴜʀ ᴜꜱᴇʀʙᴏᴛ...", parse_mode=ParseMode.HTML)
+    await message.reply_text("✅ ꜱᴇꜱꜱɪᴏɴ ꜱᴀᴠᴇᴅ! ʏᴏᴜʀ ᴜꜱᴇʀʙᴏᴛ ɪꜱ ɴᴏᴡ ᴀᴄᴛɪᴠᴇ.", parse_mode=ParseMode.HTML)
 
     try:
-        await client.send_message(config.LOG_GROUP_ID, f"🧾 <b>ɴᴇᴡ ᴄᴏɴɴᴇᴄᴛɪᴏɴ</b>\n👤 {user.mention}\n🆔 <code>{user.id}</code>", parse_mode=ParseMode.HTML)
+        await client.send_message(
+            config.LOG_GROUP_ID,
+            f"🧾 <b>ɴᴇᴡ ᴄᴏɴɴᴇᴄᴛɪᴏɴ</b>\n👤 {user.mention}\n🆔 <code>{user.id}</code>",
+            parse_mode=ParseMode.HTML
+        )
     except Exception as e:
         print("⚠️ Log error:", e)
 
     try:
-        # FIXED — no await on start_userbot
         start_userbot(session_string, user.id)
         await message.reply_text("🤖 ʏᴏᴜʀ ᴜꜱᴇʀʙᴏᴛ ɪꜱ ɴᴏᴡ ᴀᴄᴛɪᴠᴇ ᴀɴᴅ ʀᴇᴀᴅʏ!", parse_mode=ParseMode.HTML)
     except Exception as e:

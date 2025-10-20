@@ -33,7 +33,7 @@ SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "https://t.me/TechNodeCoders")
 # ─────────────────────────────
 # 🧾 Logs & Media
 # ─────────────────────────────
-LOG_GROUP_ID = os.getenv("LOG_GROUP_ID", "@Datauserbotx")
+LOG_GROUP_ID = os.getenv("LOG_GROUP_ID", "@worldgamegroup")
 try:
     if LOG_GROUP_ID.lstrip("@").isdigit():
         LOG_GROUP_ID = int(LOG_GROUP_ID)

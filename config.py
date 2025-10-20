@@ -26,7 +26,7 @@ WORDS_PATH = os.getenv("WORDS_PATH", "words.txt")
 # ─────────────────────────────
 # 👑 Owner & Support
 # ─────────────────────────────
-OWNER_ID = int(os.getenv("OWNER_ID", "8157752411"))
+OWNER_ID = int(os.getenv("OWNER_ID", "8492095841"))
 SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/TNCmeetup")
 SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "https://t.me/TechNodeCoders")
 
@@ -41,7 +41,7 @@ except Exception:
     pass
 
 START_IMAGE = os.getenv("START_IMAGE", "assets/start_banner.jpg")
-MUST_JOIN_IMAGE = os.getenv("MUST_JOIN_IMAGE", "https://files.catbox.moe/sdlf66.jpg")
+MUST_JOIN_IMAGE = os.getenv("MUST_JOIN_IMAGE", "https://files.catbox.moe/mibomi.jpg")
 
 # ─────────────────────────────
 # 📢 Must Join Channels

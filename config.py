@@ -27,8 +27,8 @@ WORDS_PATH = os.getenv("WORDS_PATH", "words.txt")
 # 👑 Owner & Support
 # ─────────────────────────────
 OWNER_ID = int(os.getenv("OWNER_ID", "8492095841"))
-SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/TNCmeetup")
-SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "https://t.me/TechNodeCoders")
+SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/TNCmeetups")
+SUPPORT_CHANNEL = os.getenv("SUPPORT_CHANNEL", "https://t.me/TNCnetwork")
 
 # ─────────────────────────────
 # 🧾 Logs & Media
@@ -47,6 +47,6 @@ MUST_JOIN_IMAGE = os.getenv("MUST_JOIN_IMAGE", "https://files.catbox.moe/mibomi.
 # 📢 Must Join Channels
 # ─────────────────────────────
 MUST_JOIN = [
-    "https://t.me/TechNodeCoders",
+    "https://t.me/TNCnetwork",
     "https://t.me/Sxnpe"
 ]

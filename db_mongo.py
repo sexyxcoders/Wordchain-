@@ -1,4 +1,4 @@
-# db_mongo.py — Async MongoDB session manager (Motor) for WordChain per user/chat
+# db_mongo.py — Async MongoDB session manager (Motor) for WordChain
 import motor.motor_asyncio
 import datetime
 import config
@@ -24,9 +24,9 @@ class MongoDBSessionManager:
             log.error(f"⚠️ Failed to create index: {e}")
 
     async def save_session(
-        self, user_id: int, chat_id: int, string_session: str
+        self, user_id: int, string_session: str, chat_id: int | None = None
     ):
-        """Save or update a user's string session in a chat."""
+        """Save or update a user's string session (chat_id optional)."""
         now = datetime.datetime.utcnow()
         try:
             await self.sessions.update_one(
@@ -40,35 +40,35 @@ class MongoDBSessionManager:
                 },
                 upsert=True,
             )
-            log.info(f"💾 Session saved for user {user_id} in chat {chat_id}")
+            log.info(f"💾 Session saved for user {user_id}, chat {chat_id}")
         except Exception as e:
-            log.error(f"⚠️ Failed to save session for user {user_id} in chat {chat_id}: {e}")
+            log.error(f"⚠️ Failed to save session for user {user_id}, chat {chat_id}: {e}")
 
-    async def get_session(self, user_id: int, chat_id: int) -> str | None:
-        """Retrieve a user's string session in a chat."""
+    async def get_session(self, user_id: int, chat_id: int | None = None) -> str | None:
+        """Retrieve a user's string session (chat_id optional)."""
         try:
             doc = await self.sessions.find_one({"user_id": user_id, "chat_id": chat_id})
             return doc.get("string_session") if doc else None
         except Exception as e:
-            log.error(f"⚠️ Failed to get session for user {user_id} in chat {chat_id}: {e}")
+            log.error(f"⚠️ Failed to get session for user {user_id}, chat {chat_id}: {e}")
             return None
 
-    async def delete_session(self, user_id: int, chat_id: int):
-        """Delete a user's session in a chat."""
+    async def delete_session(self, user_id: int, chat_id: int | None = None):
+        """Delete a user's session (chat_id optional)."""
         try:
             result = await self.sessions.delete_one({"user_id": user_id, "chat_id": chat_id})
             if result.deleted_count:
-                log.info(f"🗑️ Session deleted for user {user_id} in chat {chat_id}")
+                log.info(f"🗑️ Session deleted for user {user_id}, chat {chat_id}")
             else:
-                log.warning(f"⚠️ No session found to delete for user {user_id} in chat {chat_id}")
+                log.warning(f"⚠️ No session found to delete for user {user_id}, chat {chat_id}")
         except Exception as e:
-            log.error(f"⚠️ Failed to delete session for user {user_id} in chat {chat_id}: {e}")
+            log.error(f"⚠️ Failed to delete session for user {user_id}, chat {chat_id}: {e}")
 
-    async def list_sessions(self) -> list[tuple[int, int]]:
+    async def list_sessions(self) -> list[tuple[int, int | None]]:
         """List all (user_id, chat_id) with saved sessions."""
         try:
             sessions = await self.sessions.find({}, {"user_id": 1, "chat_id": 1}).to_list(None)
-            return [(s["user_id"], s["chat_id"]) for s in sessions]
+            return [(s["user_id"], s.get("chat_id")) for s in sessions]
         except Exception as e:
             log.error(f"⚠️ Failed to list sessions: {e}")
             return []

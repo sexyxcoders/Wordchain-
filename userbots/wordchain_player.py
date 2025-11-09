@@ -40,18 +40,22 @@ def import_words(path):
 
 
 # ────────────────────────────────
-# 🧩 Word Selector
+# 🧩 Word Selector (avoids repeats)
 # ────────────────────────────────
-def get_word(dictionary, prefix, include="", banned=None, min_len=3):
-    """Select a word that fits all game rules."""
+def get_word(dictionary, prefix, include="", banned=None, min_len=3, used_words=None):
+    """Select a word that fits all game rules and hasn't been used yet."""
     banned = banned or []
+    used_words = used_words or set()
+    
     valid = [
         w for w in dictionary
         if w.startswith(prefix)
         and (not include or include in w)
         and all(bl not in w for bl in banned)
         and len(w) >= min_len
+        and w not in used_words
     ]
+    
     return random.choice(valid) if valid else None
 
 
@@ -65,11 +69,12 @@ async def start_game_logic(client, words):
     log.info(f"🤖 Logged in as {me.first_name} (@{my_username})")
 
     banned_letters = []
+    used_words = set()
     min_length = 3
 
     @client.on(events.NewMessage)
     async def handler(event):
-        nonlocal banned_letters, min_length
+        nonlocal banned_letters, min_length, used_words
 
         text = event.raw_text or ""
         if not text:
@@ -79,7 +84,8 @@ async def start_game_logic(client, words):
         # ───── Game Reset ─────
         if re.search(r"(new round|starting a new game|won the game)", lower):
             banned_letters.clear()
-            log.info("🔁 New round detected — banned letters reset.")
+            used_words.clear()
+            log.info("🔁 New round detected — banned letters and used words reset.")
             return
 
         # ───── Skip AFK or Timeout ─────
@@ -105,7 +111,7 @@ async def start_game_logic(client, words):
         is_my_turn = my_first in turn_name or (my_username and my_username in turn_name)
         is_next_turn = my_first in next_name or (my_username and my_username in next_name)
 
-        # 🚫 Skip if not our turn or only "Next"
+        # Skip if not our turn
         if not is_my_turn or is_next_turn:
             return
 
@@ -130,10 +136,12 @@ async def start_game_logic(client, words):
             log.info(f"🚫 Updated banned letters: {banned_letters}")
 
         # ───── Select a valid word ─────
-        word = get_word(words, prefix, include, banned_letters, min_length)
+        word = get_word(words, prefix, include, banned_letters, min_length, used_words)
         if not word:
             log.warning(f"😕 No valid word found for prefix '{prefix}' (include '{include}')")
             return
+
+        used_words.add(word)  # mark word as used
 
         # ───── Send word with delay ─────
         await asyncio.sleep(random.uniform(1.8, 3.8))

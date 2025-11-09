@@ -52,7 +52,7 @@ async def start_cmd(client, message):
     if not await check_membership(client, user_id):
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("📢 ᴊᴏɪɴ @Sxnpe", url="https://t.me/Sxnpe")],
-            [InlineKeyboardButton("📢 ᴊᴏɪɴ @TechNodeCoders", url="https://t.me/TechNodeCoders")],
+            [InlineKeyboardButton("📢 ᴊᴏɪɴ @TNCnetwork", url="https://t.me/TechNodeCoders")],
             [InlineKeyboardButton("✅ ɪ ᴊᴏɪɴᴇᴅ", callback_data="joined_check")]
         ])
         caption = (

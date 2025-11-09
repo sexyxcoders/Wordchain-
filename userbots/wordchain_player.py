@@ -1,4 +1,4 @@
-# wordchain_player.py — WordChain Telegram Userbot (fully human-like)
+# wordchain_player.py — WordChain Telegram Userbot (fixed, fully human-like)
 import asyncio
 import random
 import re
@@ -30,7 +30,9 @@ log = logging.getLogger("wordchain_player")
 def import_words(path):
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return [w.strip().lower() for w in f if w.strip()]
+            words = [w.strip().lower() for w in f if w.strip()]
+            log.info(f"✅ Loaded {len(words)} words from {path}")
+            return words
     except FileNotFoundError:
         log.error(f"❌ Word list not found: {path}")
         return []
@@ -47,6 +49,8 @@ def get_word(dictionary, prefix, include="", banned=None, min_len=3):
         and all(bl not in w for bl in banned)
         and len(w) >= min_len
     ]
+    if not valid:
+        log.warning(f"😕 No valid word found for prefix '{prefix}', include '{include}', banned {banned}")
     return random.choice(valid) if valid else None
 
 # ────────────────────────────────
@@ -65,7 +69,6 @@ def maybe_typo(word, chance=0.15):
     return word
 
 async def simulate_thinking(client, chat_id):
-    """Send temporary thinking messages like '…', '🤔', 'hmm…'"""
     thinking_messages = ["…", "🤔", "hmm…", "thinking…"]
     msg_text = random.choice(thinking_messages)
     try:
@@ -76,14 +79,11 @@ async def simulate_thinking(client, chat_id):
         await asyncio.sleep(random.uniform(0.5, 1.2))
 
 async def simulate_typing_and_send(client, chat_id, word, opponent_speed=None):
-    """
-    Simulate human-like typing with typos, corrections, thinking, and variable delays.
-    """
     # Random hesitation
     if random.random() < 0.2:
         await asyncio.sleep(random.uniform(1.0, 2.0))
 
-    # Reaction delay based on opponent speed
+    # Reaction delay
     if opponent_speed is not None:
         reaction_delay = min(max(0.5, 2.5 - opponent_speed), 2.0)
         await asyncio.sleep(reaction_delay)
@@ -99,25 +99,25 @@ async def simulate_typing_and_send(client, chat_id, word, opponent_speed=None):
     # Typing simulation
     try:
         async with client.action(chat_id, "typing"):
-            if len(word_to_send) <= 3:
-                await asyncio.sleep(delay + random.uniform(0.3, 0.8))
-            else:
-                await asyncio.sleep(delay)
+            await asyncio.sleep(delay)
     except Exception:
         await asyncio.sleep(delay)
 
     # If typo, send it first and delete
     if word_to_send != word:
-        message = await client.send_message(chat_id, word_to_send)
-        await asyncio.sleep(random.uniform(0.5, 1.2))
         try:
+            message = await client.send_message(chat_id, word_to_send)
+            await asyncio.sleep(random.uniform(0.5, 1.2))
             await client.delete_messages(chat_id, message)
         except Exception:
             pass
 
     # Send correct word
-    await client.send_message(chat_id, word)
-    log.info(f"💬 Sent word in chat {chat_id}: {word}")
+    try:
+        await client.send_message(chat_id, word)
+        log.info(f"💬 Sent word in chat {chat_id}: {word}")
+    except Exception as e:
+        log.error(f"❌ Failed to send word '{word}' to chat {chat_id}: {e}")
 
 # ────────────────────────────────
 # WordChain Game Logic
@@ -142,11 +142,13 @@ async def start_game_logic(client, words):
         lower = text.lower()
         chat_id = event.chat_id
 
+        log.info(f"📩 New message in chat {chat_id}: {text}")
+
         # Reset round
         if re.search(r"(new round|starting a new game|won the game)", lower):
             banned_letters.clear()
             last_player_time = None
-            log.info(f"🔁 New round in chat {chat_id} — banned letters cleared.")
+            log.info(f"🔁 New round — banned letters cleared in chat {chat_id}.")
             return
 
         # Skip AFK or timeout
@@ -169,6 +171,8 @@ async def start_game_logic(client, words):
 
         is_my_turn = my_first in turn_name or (my_username and my_username in turn_name)
         is_next_turn = my_first in next_name or (my_username and my_username in next_name)
+        log.info(f"Turn detected — Turn: {turn_name}, Next: {next_name}, is_my_turn={is_my_turn}")
+
         if not is_my_turn or is_next_turn:
             last_player_time = asyncio.get_event_loop().time()
             return
@@ -176,6 +180,7 @@ async def start_game_logic(client, words):
         # Extract starting letter
         prefix_match = re.search(r"start[^A-Za-z]*with[^A-Za-z]*([A-Za-z])", text, re.IGNORECASE)
         if not prefix_match:
+            log.warning(f"No starting letter found in message: {text}")
             return
         prefix = prefix_match.group(1).lower()
 
@@ -196,7 +201,6 @@ async def start_game_logic(client, words):
         # Select a valid word
         word = get_word(words, prefix, include, banned_letters, min_length)
         if not word:
-            log.warning(f"😕 No valid word found in chat {chat_id} for prefix '{prefix}'")
             return
 
         # Calculate opponent speed
@@ -204,6 +208,7 @@ async def start_game_logic(client, words):
         if last_player_time is not None:
             opponent_speed = asyncio.get_event_loop().time() - last_player_time
 
+        # Send word
         await simulate_typing_and_send(client, chat_id, word, opponent_speed)
         last_player_time = asyncio.get_event_loop().time()
 

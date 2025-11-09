@@ -28,7 +28,7 @@ db = MongoDBSessionManager()
 # ────────────────────────────────
 async def check_membership(client, user_id: int):
     """Ensure the user joined all required channels."""
-    required_channels = ["Sxnpe", "TechNodeCoders"]
+    required_channels = ["Sxnpe", "TncNetwork"]
     for username in required_channels:
         try:
             member = await client.get_chat_member(username, user_id)
@@ -52,7 +52,7 @@ async def start_cmd(client, message):
     if not await check_membership(client, user_id):
         buttons = InlineKeyboardMarkup([
             [InlineKeyboardButton("📢 ᴊᴏɪɴ @Sxnpe", url="https://t.me/Sxnpe")],
-            [InlineKeyboardButton("📢 ᴊᴏɪɴ @TncNetwork", url="https://t.me/TechNodeCoders")],
+            [InlineKeyboardButton("📢 ᴊᴏɪɴ @TncNetwork", url="https://t.me/TncNetwork")],
             [InlineKeyboardButton("✅ ɪ ᴊᴏɪɴᴇᴅ", callback_data="joined_check")]
         ])
         caption = (
